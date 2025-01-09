@@ -1,81 +1,112 @@
-﻿@model WebShop2024.Models.Product.ProductCreateVM
+﻿@model IEnumerable<WebShop2024.Models.Product.ProductIndexVM>
 
 @{
-    ViewData["Title"] = "Create";
+    ViewData["Title"] = "Index";
+}
+<h1>Index</h1>
+
+@if ((this.User.Identity.IsAuthenticated) && (this.User.IsInRole("Administrator")))
+{
+    <p>
+        <a asp-action="Create">Create New</a>
+    </p>
 }
 
-<h1>Create</h1>
+<form asp-controller="Product" asp-action="Index" method="get">
+    <p>
+        Brand: <input type="text" name="SearchStringBrandName" />
+        Category: <input type="text" name="SearchStringCategoryName" />
 
-<h4>ProductCreateVM</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Create">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group">
-                <label asp-for="ProductName" class="control-label"></label>
-                <input asp-for="ProductName" class="form-control" />
-                <span asp-validation-for="ProductName" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="BrandId" class="control-label"></label>
-                @*<input asp-for="BrandId" class="form-control" />*@
-                <select asp-for="BrandId" class="form-control text-center">
-                   @*  @foreach (var brand in Model.Brands)
-                    {
-                        <option value=" @brand.Id">@brand.Name</option>
-                    } *@
-                </select>
-                <span asp-validation-for="BrandId" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="CategoryId" class="control-label"></label>
-                @*<input asp-for="CategoryId" class="form-control" />*@
-                <select asp-for="CategoryId" class="form-control text-center">
-                   @*  @foreach (var category in Model.Categories)
-                    {
-                        <option value="@category.Id">@category.Name</option>
-                    } *@
-                </select>
-                <span asp-validation-for="CategoryId" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Picture" class="control-label"></label>
-                <input asp-for="Picture" class="form-control" />
-                <span asp-validation-for="Picture" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Quantity" class="control-label"></label>
-                <input asp-for="Quantity" class="form-control" />
-                <span asp-validation-for="Quantity" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Price" class="control-label"></label>
-                <input asp-for="Price" class="form-control" />
-                <span asp-validation-for="Price" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Discount" class="control-label"></label>
-                <input asp-for="Discount" class="form-control" />
-                <span asp-validation-for="Discount" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
-            </div>
-        </form>
-    </div>
-</div>
+        <input type="submit" value="Filter" />
+    </p>
+</form>
 
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.ProductName)
+            </th>
+            @*<th>
+            @Html.DisplayNameFor(model => model.BrandId)
+            </th>*@
+            <th>
+                @Html.DisplayNameFor(model => model.BrandName)
+            </th>
+            @*<th>
+            @Html.DisplayNameFor(model => model.CategoryId)
+            </th>*@
+            <th>
+                @Html.DisplayNameFor(model => model.CategoryName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Picture)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Quantity)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Price)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Discount)
+            </th>
+
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.ProductName)
+                </td>
+                @*<td>
+            @Html.DisplayFor(modelItem => item.BrandId)
+            </td>*@
+                <td>
+                    @Html.DisplayFor(modelItem => item.BrandName)
+                </td>
+                @*<td>
+            @Html.DisplayFor(modelItem => item.CategoryId)
+            </td>*@
+                <td>
+                    @Html.DisplayFor(modelItem => item.CategoryName)
+                </td>
+                <td>
+                    <img src="@Html.DisplayFor(modelItem => item.Picture)" alt="Image" width="100" />
+                    @*@Html.DisplayFor(modelItem => item.Pictute)*@
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Quantity)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Price)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Discount) %
+                </td>
+
+                <td>
+                    @if ((this.User.Identity.IsAuthenticated) && (this.User.IsInRole("Administrator")))
+                    {
+                        <a asp-action="Edit" asp-route-id="@item.Id">Edit</a>
+ |
+                    }
+                    <a asp-action="Details" asp-route-id="@item.Id">Details</a>
+                    @if ((this.User.Identity.IsAuthenticated) && (this.User.IsInRole("Administrator")))
+                    {
+                        <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                    }
+
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
 @section Scripts {
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
 }
-@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
-@{
-}
+
