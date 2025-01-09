@@ -1,10 +1,25 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using WebShop2024.Core.Contracts;
+using WebShop2024.Models.Brand;
+using WebShop2024.Models.Category;
+using WebShop2024.Models.Product;
 
 namespace WebShop2024.Controllers
 {
     public class ProductController : Controller
     {
+        private readonly IProductService _productService;
+        private readonly ICategoryService _categoryService;
+        private readonly IBrandService _brandService;
+
+        public ProductController(IProductService productService, ICategoryService categoryService, IBrandService brandService)
+        {
+            _productService = productService;
+            _categoryService = categoryService;
+            _brandService = brandService;
+        }
+
         // GET: ProductController
         public ActionResult Index()
         {
@@ -20,23 +35,45 @@ namespace WebShop2024.Controllers
         // GET: ProductController/Create
         public ActionResult Create()
         {
-            return View();
+            var product = new ProductCreateVM();
+            product.Brands = _brandService.GetBrands()
+                .Select(x => new BrandPairVM
+                {
+                    Id = x.Id,
+                    Name = x.BrandName
+                }).ToList();
+
+            product.Categories = _categoryService.GetCategories()
+                .Select(x => new CategoryPairVM
+                {
+                    Id = x.Id,
+                    Name = x.CategoryName
+                }).ToList();
+
+            return View(product);
         }
+
 
         // POST: ProductController/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create(IFormCollection collection)
+        public ActionResult Create([FromForm] ProductCreateVM product)
         {
-            try
+            if (ModelState.IsValid)
             {
-                return RedirectToAction(nameof(Index));
+                var createdId = _productService.Create(product.ProductName, product.BrandId,
+                    product.CategoryId, product.Picture,
+                    product.Quantity, product.Price, product.Discount);
+                if (createdId)
+                {
+                    return RedirectToAction(nameof(Index));
+                }
             }
-            catch
-            {
-                return View();
-            }
+
+            return View();
         }
+
+
 
         // GET: ProductController/Edit/5
         public ActionResult Edit(int id)
